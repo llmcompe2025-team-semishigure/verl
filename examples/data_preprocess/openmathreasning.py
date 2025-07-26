@@ -146,8 +146,8 @@ if __name__ == "__main__":
             '''
             data = {
                 "problem":  question_raw,   # 元の question
-                "solution": answer_raw,     # 元の response（ステップごとの解法）
-                "answer":   solution,       # extract_answer() で抽出した最終解
+                "solution": solution,     # 元の response（ステップごとの解法）
+                "answer":   answer_raw,       # extract_answer() で抽出した最終解
             }
             return data
         return process_fn
