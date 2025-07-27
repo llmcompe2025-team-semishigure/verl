@@ -24,6 +24,19 @@ import datasets
 
 from verl.utils.hdfs_io import copy, makedirs
 
+import re
+
+def extract_derivation(solution_str: str) -> str:
+    """
+    <think>タグ内のテキスト、もしくは閉じタグがなければ
+    タグ終端または文字列末までを取り出す。
+    """
+    # </think> があればそこまで、なければ文字列末尾までをキャプチャ
+    pattern = r"<think>(.*?)(?:</think>|$)"
+    match = re.search(pattern, solution_str, re.DOTALL)
+    if match:
+        return match.group(1).strip()
+    return ""
 
 def extract_answer(solution_str):
     """Extract the final answer from the solution string"""
@@ -64,7 +77,7 @@ def extract_answer(solution_str):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--local_dir", default="~/data/open_math_reasning")
+    parser.add_argument("--local_dir", default="~/dataset/openmathreasning-5.68M-select/")
     parser.add_argument("--hdfs_dir", default=None)
     parser.add_argument("--test_size", type=float, default=0.001, help="Proportion of data to use for test set")
     parser.add_argument("--random_seed", type=int, default=42, help="Random seed for train/test split")
@@ -119,11 +132,13 @@ if __name__ == "__main__":
             # MiroMind-M1-SFT-719K has specific structure: id, question, response
             question_raw = example.get("problem", "")
             answer_raw = example.get("expected_answer", "")
+            solution_raw = example.get("generated_solution", "")
 
             question = question_raw
             
             # Extract final answer if possible
-            solution = extract_answer(answer_raw)
+            #solution = extract_answer(answer_raw)
+            solution = extract_derivation(solution_raw)
             '''
             data = {
                 "data_source": data_source,
